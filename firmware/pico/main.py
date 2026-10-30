@@ -4,6 +4,7 @@ import time
 
 import config
 from ping import protocol
+from ping.buzzer import Buzzer
 from ping.console import Console
 from ping.display import Display
 from ping.radio import Radio
@@ -16,6 +17,7 @@ def main():
     console = Console()
     display = Display()
     radio = Radio()
+    buzzer = Buzzer()
 
     display.show_status("P.I.N.G", "node %d ready" % config.NODE_ID)
     console.println(
@@ -34,6 +36,8 @@ def main():
                 seq = radio.next_seq()
                 packet = protocol.text_message(config.NODE_ID, dst, seq, text)
                 ok = radio.send(packet)
+                if ok:
+                    buzzer.beep(1)
                 target = "all" if dst == protocol.BROADCAST else str(dst)
                 suffix = "" if ok else " (no ack)"
                 console.println("[tx] -> %s: %s%s" % (target, text, suffix))
@@ -58,6 +62,7 @@ def main():
                         label = "@%d" % msg["src"]
                         display.add_message(label, msg["text"])
                         console.println("[rx] %s %s" % (label, msg["text"]))
+                        buzzer.beep(2)
 
         time.sleep_ms(LOOP_DELAY_MS)
 
