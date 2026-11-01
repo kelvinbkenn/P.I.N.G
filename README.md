@@ -64,3 +64,39 @@ mpremote run firmware/pico/tests/radio_rx_test.py
 ```
 
 Set `NODE_ID` in `firmware/pico/config.py` before flashing each node.
+
+## C port
+
+A C port targeting the Raspberry Pi Pico SDK lives in `firmware/pico_c/`. It mirrors the
+modules in `firmware/pico/` (protocol, radio, display, buzzer, console) and uses the
+same wire protocol. Configure pins/RF settings in `firmware/pico_c/config.h`. Build with
+the Pico SDK (set `PICO_SDK_PATH`):
+
+```
+cd firmware/pico_c
+mkdir -p build && cd build
+cmake ..
+make
+```
+
+The host-testable protocol translation can be built and run with:
+
+```
+cd firmware/pico_c
+make test-protocol
+```
+
+Protocol performance (host, GCC -O2):
+
+```
+cd firmware/pico_c
+make bench-protocol
+```
+
+MicroPython on-device protocol benchmark:
+
+```
+mpremote run firmware/pico/tests/bench_protocol.py
+```
+On-device C benchmark metrics are printed to USB serial every 5000 loop iterations
+when `BENCHMARK` is enabled in `firmware/pico_c/main.c`.
